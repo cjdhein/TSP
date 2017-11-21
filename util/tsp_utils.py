@@ -57,11 +57,11 @@ class Map:
         for city in self.cities:
             print city.id + ' ' + city.x + ' ' + city.y
 
-# Accepts the IDs of two different cities and
-# gives us the distance between them
-def distanceBetween(self,id1, id2):
-    dist = self.cities[int(id1)].distanceTo(self.cities[int(id2)])
-    return dist
+    # Accepts the IDs of two different cities and
+    # gives us the distance between them
+    def distanceBetween(self,id1, id2):
+        dist = self.cities[int(id1)].distanceTo(self.cities[int(id2)])
+        return dist
 
 if __name__ == '__main__':
     inFile = sys.argv[1]
