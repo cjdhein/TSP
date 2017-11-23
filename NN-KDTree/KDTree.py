@@ -29,19 +29,6 @@ def BuildKDTree2(filename):
     root = kDTree( points, 0, 2)
     printkDtreePreOrder(root)
 
-def printkDtreePreOrder( tree ):
-    try:
-        sys.stdout.write("(")
-        sys.stdout.write( str(tree.city) )
-        sys.stdout.write(",")
-        printkDtreePreOrder( tree.left )
-        sys.stdout.write(",")
-        printkDtreePreOrder( tree.right )
-        sys.stdout.write(")")
-    except AttributeError:
-        sys.stdout.write("None")
-
-
 class kDNode:
     def __init__(self, city, left, right):
         self.city = city
@@ -68,6 +55,18 @@ def kDTree( points, depth, d ):
     #     print(str(count) + " " + str(i))
     #     count += 1
     # print(points[mid])
+
+def printkDtreePreOrder( tree ):
+    try:
+        sys.stdout.write("(")
+        sys.stdout.write( str(tree.city) )
+        sys.stdout.write(",")
+        printkDtreePreOrder( tree.left )
+        sys.stdout.write(",")
+        printkDtreePreOrder( tree.right )
+        sys.stdout.write(")")
+    except AttributeError:
+        sys.stdout.write("None")
 
 
 if __name__ == '__main__':
