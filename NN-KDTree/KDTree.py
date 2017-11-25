@@ -193,18 +193,17 @@ def twoOptImprove(route,distances):
         prevBest = currentBest
         for i in range(1,len(route)-2):
             for j in range(i+1,len(route)-1):
-#				print 'Try swap ' + str(route[i]) + ', ' + str(route[j])
+                #print 'Try swap ' + str(route[i]) + ', ' + str(route[j])
                 candidate = twoOptSwap(route,i,j)
                 candidate_dist = calcLength(candidate,distances)
                 if candidate_dist < currentBest:
                     route = candidate
                     currentBest = candidate_dist
-                    break
+                    #break
             else:
 				continue
             break
 	currentBest = calcLength(route,distances)
-
 	return (currentBest,  route )
 
 # calculates total length of the given tour
@@ -219,9 +218,6 @@ def calcLength(tour, dists):
 		c2 = tour[j]
 		length += int(round(math.sqrt(dists[c1][c2])))
 	return length
-
-
-
 
 
 if __name__ == '__main__':
