@@ -10,10 +10,12 @@
 #
 import sys
 from operator import itemgetter
+
 #import random
 import heapq
 import math
 import timeit
+import numpy as np
 
 # KDTreeNN
 #
@@ -38,8 +40,12 @@ def kdTreeNN(filename, outfilename):
 
     # Set Start city and find Route
     city = points[0]
-    (totalDist, route) = kDTreeSearchNN(root, city, len(points))
+    distSqdMatrix = buildDistSqdMatrix(points)
 
+    (totalDist, route) = kDTreeSearchNN(root, city, len(points), distSqdMatrix)
+    print(totalDist, route)
+    (totalDist, route) = twoOptImprove(route , distSqdMatrix)
+    print(totalDist, route)
     # Save route
     outFile = open(outfilename, "w")
     outFile.write(str(totalDist) + "\n")
@@ -47,6 +53,20 @@ def kdTreeNN(filename, outfilename):
         outFile.write(str(i) + "\n")
     return
 
+def buildDistSqdMatrix( points ):
+    distSqdMatrix = [[ None for x in points ] for y in points ]
+    for i in range( 0, len(points)):
+        for j in range(i,len(points)):
+            city1 = points[i]
+            city2 = points[j]
+            if city1 == city2:
+                dist = float('inf')
+            else:
+				dist = dist_sqd(city1, city2)
+
+            distSqdMatrix[city1[0]][city2[0]] = dist
+            distSqdMatrix[city2[0]][city1[0]] = dist
+    return distSqdMatrix
 # kDNode
 # Nodes of trees
 # value is the city
@@ -100,7 +120,7 @@ def printkDtree( tree ):
 # kDTreeSearchNN
 # Determines a tour distance and route
 # Uses greedy method of finding nearest unvisited city to target city
-def kDTreeSearchNN( tree, point, numCities ):
+def kDTreeSearchNN( tree, point, numCities, distSqdMatrix ):
     target = point
     route = []
     totalDist = 0
@@ -121,7 +141,7 @@ def kDTreeSearchNN( tree, point, numCities ):
                 continue    # Skip node
 
             # Get distance squared value for comparison
-            dist = dist_sqd(node.city, target)
+            dist = distSqdMatrix[ node.city[0] ][ target[0] ]
 
             # Possibly update best distance ONLY IF city is unvisited
             if node.visited == False:
@@ -151,6 +171,57 @@ def dist_sqd( city1, city2 ):
     x_dist = abs(city2[1] - city1[1])
     y_dist = abs(city2[2] - city1[2])
     return x_dist*x_dist + y_dist*y_dist
+
+# swaps edges
+# accepts the full route and the indices for two nodes to swap
+def twoOptSwap(route,i,j):
+	new_route = route[:i]
+	tmp = list(reversed(route[i:j+1]))
+	new_route.extend(tmp)
+	new_route.extend(route[j+1:])
+	return new_route
+
+# Performs a twoOpt improvement on the candidate solution
+def twoOptImprove(route,distances):
+    noSwap = route[0]
+    currentBest = calcLength(route,distances)
+    prevBest = currentBest + 1
+    n = 0
+    while currentBest < prevBest:
+        n += 1
+        #print(str(n))
+        prevBest = currentBest
+        for i in range(1,len(route)-2):
+            for j in range(i+1,len(route)-1):
+#				print 'Try swap ' + str(route[i]) + ', ' + str(route[j])
+                candidate = twoOptSwap(route,i,j)
+                candidate_dist = calcLength(candidate,distances)
+                if candidate_dist < currentBest:
+                    route = candidate
+                    currentBest = candidate_dist
+                    break
+            else:
+				continue
+            break
+	currentBest = calcLength(route,distances)
+
+	return (currentBest,  route )
+
+# calculates total length of the given tour
+# accepts the tour and a distance Matrix
+def calcLength(tour, dists):
+
+	length = 0
+
+	for i in range(len(tour)-1):
+		j = i+1
+		c1 = tour[i]
+		c2 = tour[j]
+		length += int(round(math.sqrt(dists[c1][c2])))
+	return length
+
+
+
 
 
 if __name__ == '__main__':
