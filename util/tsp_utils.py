@@ -36,7 +36,7 @@ class City:
 
 		return roundedVal
 
-		
+
 #       Map
 # Holds the entire map/list of cities from the input file
 # Constructor accepts the loaded input file and
@@ -66,7 +66,7 @@ class Map:
 	def distanceBetween(self,id1, id2):
 		dist = self.cities[int(id1)].distanceTo(self.cities[int(id2)])
 		return dist
-	
+
 	# Build a distance matrix containing the distances between each city x and city y
 	# If x=y, distance is float infinity
 	# The values in the array are tuples containing the distance, from city id and to city id
@@ -81,6 +81,6 @@ class Map:
 					dist = city1.distanceTo(city2)
 				self.distMatrix[city1.getId()][city2.getId()] = (dist,city1.getId(),city2.getId())
 				self.distMatrix[city2.getId()][city1.getId()] = (dist,city2.getId(),city1.getId())
-`
+
 	def printMatrix(self):
 		print self.distMatrix
