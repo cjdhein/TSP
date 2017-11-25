@@ -2,6 +2,7 @@ import sys
 import heapq
 import tsp_utils as utils
 import numpy as np
+import timeit
 # implementation of tree borrowed from:
 # https://stackoverflow.com/questions/2358045/how-can-i-implement-a-tree-in-python-are-there-any-built-in-data-structures-in
 class Tree:
@@ -168,21 +169,28 @@ def setTour(route, length, fileName):
         outFile.write(str(route[i])+'\n')
 
 
-
+start = timeit.default_timer()
 inFilename = sys.argv[1]
 inFile = open(inFilename,"r")
 
 outFilename = inFilename + '.tour'
+option = int(sys.argv[2])
 
 map = utils.Map(inFile)
 route = primMST(map)
 print calcLength(route,map)
-print 'Normal 2-opt'
-optroute = improve(route,map,1)
-print calcLength(optroute,map)
-print 'Faster 2-opt'
-fastroute = twoOptPlus(route,map)
-print calcLength(fastroute,map)
+if option == 1:
+    print 'Normal 2-opt'
+    optroute = improve(route,map,1)
+    print calcLength(optroute,map)
+else:
+    print 'Faster 2-opt'
+    fastroute = twoOptPlus(route,map)
+    print calcLength(fastroute,map)
+
+stop = timeit.default_timer()
+elapsed = stop - start
+print elapsed
 # also creates distance matrix
 
 
