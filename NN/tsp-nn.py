@@ -19,11 +19,12 @@
 import sys
 sys.path.insert(0, '../util')
 
+import timeit
 from tsp_utils import Map, City
 from nn import NearestNeighbor
 
 if __name__ == '__main__':
-
+    t1 = timeit.default_timer()
     # Check input file name exists and is readable file
     try:
         filename = sys.argv[1]
@@ -51,3 +52,8 @@ if __name__ == '__main__':
         fileWrite = open(filename + ".tour", "w")
         NN.saveSolution(fileWrite)
         fileWrite.close()
+
+    t2 = timeit.default_timer()
+    fileWrite = open(filename + ".tourTime", "w")
+    fileWrite.write(str(t2-t1) + "\n")
+    fileWrite.close()

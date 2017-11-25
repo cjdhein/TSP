@@ -55,10 +55,9 @@ class NearestNeighbor:
         totalDistance = 0
 
         # Starting City (add to visited)
-        city = self.cityMap.cities[ startId]
+        city = self.cityMap.cities[ startId ]
         visited = [city.getId()]
         count += 1
-
         while ( count < n ):
             minCity = None
             minDist = float('inf')
@@ -81,9 +80,12 @@ class NearestNeighbor:
                 print(minCity)
                 print(minDist)
                 sys.exit()
-
+        # Add last distance
+        totalDistance += self.cityMap.distMatrix[startId][visited[len(visited)-1]][0]
         self.route += visited
         self.distance = totalDistance
+
+
 
     # Get route array
     def getRoute(self):
