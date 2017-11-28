@@ -174,7 +174,9 @@ def kDTreeSearchNN( tree, numCities, distSqdMatrix, maxNN ):
             else:
                 heapq.heappush(heap, (0, node.right ))
                 heapq.heappush(heap, (dist, node.left ))
-
+        if bestNode = None:
+            heapq.heappush( heap, (0 , tree ) )
+            
         # Add nearest neighbor to route, mark visited, update target
         bestNode.visited = True
         route.append(bestNode)

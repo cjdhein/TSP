@@ -38,14 +38,29 @@ def kdTreeNN(filename, outfilename):
     # Create kd-tree structure with points, 0 start depth, and 2D(x and y)
     root = kDTree( points, 0, 2)
 
-    # Set Start city and find Route
-    city = root.city
-    distSqdMatrix = buildDistSqdMatrix(points)
+    # Distance Matrix
+    numNN = len(points) * .002
+    if (numNN < 10):
+        numNN = 10
 
-    (totalDist, route) = kDTreeSearchNN(root, city, len(points), distSqdMatrix)
-    print(totalDist, route)
-    (totalDist, route) = twoOptImprove(route , distSqdMatrix)
-    print(totalDist, route)
+    #fileResults = open("results1.txt", "w")
+    (totalDist, routeNodes, distSqdMatrix) = kDTreeSearchNN(root, len(points), numNN)
+    #print(totalDist, routeNodes)
+    #fileResults.write("total dist: " + str(totalDist) + "\n")
+    # for i in routeNodes:
+    #     fileResults.write(str(i.city[0]) + ", " + str(i.city[1]) + ", " + str(i.city[2]) + "\n")
+    #
+    # fileResults.close()
+
+    fileResults = open("results2.txt", "w")
+    # (totalDist, route) = twoOptImprove(route , distSqdMatrix)
+    (totalDist, route) = twoOptImproveK(routeNodes , distSqdMatrix)
+    #print(totalDist, route)
+    fileResults.write("total dist: " + str(totalDist) + "\n")
+    for i in route:
+        fileResults.write(str(i) + "\n")
+    fileResults.close()
+
     # Save route
     outFile = open(outfilename, "w")
     outFile.write(str(totalDist) + "\n")
@@ -53,20 +68,6 @@ def kdTreeNN(filename, outfilename):
         outFile.write(str(i) + "\n")
     return
 
-def buildDistSqdMatrix( points ):
-    distSqdMatrix = [[ None for x in points ] for y in points ]
-    for i in range( 0, len(points)):
-        for j in range(i,len(points)):
-            city1 = points[i]
-            city2 = points[j]
-            if city1 == city2:
-                dist = float('inf')
-            else:
-                dist = dist_sqd(city1, city2)
-
-            distSqdMatrix[city1[0]][city2[0]] = dist
-            distSqdMatrix[city2[0]][city1[0]] = dist
-    return distSqdMatrix
 # kDNode
 # Nodes of trees
 # value is the city
@@ -79,6 +80,19 @@ class kDNode:
         self.left = left
         self.right = right
         self.dim = dim      # 0 or 1
+        self.nn = []
+
+    def addNN( self, distSqd, node, maxNN ):
+        if len(self.nn) < maxNN:
+            self.nn.append( ( distSqd, node ) )
+        else:
+            self.nn.sort(key=itemgetter(0), reverse=True)
+            if (self.nn[0][0] > distSqd):
+                # Replace largest dist with dist
+                self.nn[0] = ( distSqd, node )
+
+    def getNNs( self ):
+        return [ x for x in self.nn ]
 
     def __str__(self, level=1):
         ret = ""
@@ -88,7 +102,6 @@ class kDNode:
         if self.right != None:
             ret += self.right.__str__(level+1)
         return ret
-
 
 # kDTree
 # Creates kd-tree recursively with city data, depth into tree and dimensions (k)
@@ -120,12 +133,12 @@ def printkDtree( tree ):
 # kDTreeSearchNN
 # Determines a tour distance and route
 # Uses greedy method of finding nearest unvisited city to target city
-def kDTreeSearchNN( tree, point, numCities, distSqdMatrix ):
-    start = tree.city
-    target = tree.city
-    tree.visited = True
-    route = [ tree.city[0] ]
+def kDTreeSearchNN( tree, numCities, maxNN ):
+    start = tree
+    target = start
+    route = []
     totalDist = 0
+    distSqdMatrix  = [[ -1 for x in range(0, numCities)] for y in range(0, numCities)]
 
     # Find nearest city for entire loop
     while len(route) < numCities:
@@ -134,18 +147,21 @@ def kDTreeSearchNN( tree, point, numCities, distSqdMatrix ):
         bestNode = None
 
         # Add to priority queue
-        #dist1 = distSqdMatrix[ tree.city[0] ][ target[0] ]
-        #print("dist1: " + str(dist1) +"(" + str(tree.city[0]) +" to "+ #str(target[0])+ ")")
         heapq.heappush( heap, (0 , tree ) )
         while len(heap) != 0:
             (d, node) = heapq.heappop( heap )
             if (d >= bestDistSqd):
-                continue       # No node is closer, end while loop
+                break       # No node is closer, end while loop
             if node == None:
                 continue    # Skip node
 
             # Get distance squared value for comparison
-            dist = distSqdMatrix[ node.city[0] ][ target[0] ]
+            dist = distSqdMatrix[ node.city[0] ][ target.city[0] ]
+            if dist == -1:
+                distSqdMatrix[ node.city[0] ][ target.city[0] ] = dist_sqd( node.city, target.city )
+                distSqdMatrix[ target.city[0] ][ node.city[0] ] = distSqdMatrix[ node.city[0] ][ target.city[0] ]
+                dist = distSqdMatrix[ node.city[0] ][ target.city[0] ]
+            target.addNN( dist , node, maxNN)
 
             # Possibly update best distance ONLY IF city is unvisited
             if node.visited == False:
@@ -154,27 +170,26 @@ def kDTreeSearchNN( tree, point, numCities, distSqdMatrix ):
                     bestNode = node
 
             # Add child nodes to priority queue, adjusting priority left/right
-            if (target[node.dim] <= node.city[node.dim]):
+            if (target.city[node.dim] <= node.city[node.dim]):
                 heapq.heappush(heap, (0, node.left ))
                 heapq.heappush(heap, (dist, node.right ))  # sorting by dist?
             else:
                 heapq.heappush(heap, (0, node.right ))
                 heapq.heappush(heap, (dist, node.left ))
-        #print(str( route ))
+
         # Add nearest neighbor to route, mark visited, update target
-        if bestNode != None:
-            bestNode.visited = True
-            route.append(bestNode.city[0])
-            target = bestNode.city
-            totalDist += int(round(math.sqrt(bestDistSqd)))
+        bestNode.visited = True
+        route.append(bestNode)
+        target = bestNode
+        totalDist += int(round(math.sqrt(bestDistSqd)))
 
     # Add distance from last target city to start city
-    totalDist += int(round(math.sqrt(dist_sqd(target, start))))
-    return (totalDist, route)
+    totalDist += int(round(math.sqrt(dist_sqd(target.city, start.city))))
+    return (totalDist, route, distSqdMatrix)
 
 def dist_sqd( city1, city2 ):
-    x_dist = abs(city2[1] - city1[1])
-    y_dist = abs(city2[2] - city1[2])
+    x_dist = city2[1] - city1[1]
+    y_dist = city2[2] - city1[2]
     return x_dist*x_dist + y_dist*y_dist
 
 # swaps edges
@@ -187,43 +202,67 @@ def twoOptSwap(route,i,j):
 	return new_route
 
 # Performs a twoOpt improvement on the candidate solution
-def twoOptImprove(route,distances):
-    noSwap = route[0]
-    currentBest = calcLength(route,distances)
+def twoOptImproveK(routeNodes , distances):
+    noSwap = routeNodes[0]
+    currentBest = calcLengthNodes(routeNodes,distances)
     prevBest = currentBest + 1
     n = 0
     while currentBest < prevBest:
         n += 1
         #print(str(n))
         prevBest = currentBest
-        for i in range(1,len(route)-2):
-            for j in range(i+1,len(route)-1):
-                #print 'Try swap ' + str(route[i]) + ', ' + str(route[j])
-                candidate = twoOptSwap(route,i,j)
-                candidate_dist = calcLength(candidate,distances)
+        for i in range(0, len(routeNodes)):
+            for nn in routeNodes[i].getNNs():
+                nnIndex = -1
+                # nn is a tuple of (distSqdToNN, kDNode_NN)
+                for x in range(0, len(routeNodes)):
+                    if routeNodes[x].city == nn[1].city:
+                        nnIndex = x
+
+                if (i < nnIndex):
+                    candidate = twoOptSwap(routeNodes,i,nnIndex)
+                else:
+                    candidate = twoOptSwap(routeNodes,nnIndex, i)
+
+                candidate_dist = calcLengthNodes(candidate,distances)
                 if candidate_dist < currentBest:
-                    route = candidate
+                    routeNodes = candidate
                     currentBest = candidate_dist
                     #break
-            # else:
-			# 	continue
-            # break
-    currentBest = calcLength(route,distances)
+            else:
+				continue
+            break
+	currentBest = calcLengthNodes(routeNodes,distances)
+    route  = [ x.city[0] for x in routeNodes ]
     return (currentBest,  route )
 
 # calculates total length of the given tour
 # accepts the tour and a distance Matrix
-def calcLength(tour, dists):
+def calcLengthNodes(routeNodes, dists):
     length = 0
-
-    for i in range(len(tour)-1):
+    n = 0
+    #print("HERE")
+    for i in range(len(routeNodes)-1):
         j = i+1
-        c1 = tour[i]
-        c2 = tour[j]
+        c1 = routeNodes[i].city[0]
+        c2 = routeNodes[j].city[0]
+        if (dists[c1][c2] == -1):
+            dists[c1][c2] = dist_sqd(routeNodes[i].city, routeNodes[j].city)
         length += int(round(math.sqrt(dists[c1][c2])))
-    length += int(round(math.sqrt(dists[ tour[0] ][ tour[len(tour)-1] ] )))
-    return length
+        # print(str(c1) + ", " + str(c2) + ", " + str(dists[c1][c2]))
+        # print(str(c2) + ", " + str(length))
 
+    # Add last leg of trip
+    c1 = routeNodes[0].city[0]
+    c2 = routeNodes[ len(routeNodes) - 1].city[0]
+    #print("First City: " + str(c1))
+    #print("Last City: " + str(c2))
+    if (dists[c1][c2] == -1):
+        dists[c1][c2] = dist_sqd(routeNodes[0].city, routeNodes[ len(routeNodes) - 1].city)
+    length += int(round(math.sqrt(dists[c1][c2])))
+    n  += 1
+    #print(str(c1) + ", " + str(length))
+    return length
 
 if __name__ == '__main__':
     t1= timeit.default_timer()
@@ -233,7 +272,7 @@ if __name__ == '__main__':
     except:
         print("Usage: " + sys.argv[0] + " <inputfilename>")
         sys.exit()
-    #random.seed(1)
+
     outfilename = filename + ".tour"
     kdTreeNN(filename, outfilename)
 
