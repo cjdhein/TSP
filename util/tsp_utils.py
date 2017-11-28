@@ -63,9 +63,8 @@ class Map:
 
 	# Accepts the IDs of two different cities and
 	# gives us the distance between them
-	def distanceBetween(self,id1, id2):
-		dist = self.cities[int(id1)].distanceTo(self.cities[int(id2)])
-		return dist
+	def dist(self,id1, id2):
+		return self.distMatrix[int(id1)][int(id2)][0]
 
 	# Build a distance matrix containing the distances between each city x and city y
 	# If x=y, distance is float infinity
