@@ -22,7 +22,6 @@ import numpy as np
 # Build KDTree from city data points
 # Use Tree to find solution
 def kdTreeNN(filename, outfilename):
-
     # Read file with city Id, city x, and city y
     try:
         inFile = open(filename, "r")
@@ -42,10 +41,12 @@ def kdTreeNN(filename, outfilename):
     city = root.city
     distSqdMatrix = buildDistSqdMatrix(points)
 
+
     (totalDist, route) = kDTreeSearchNN(root, city, len(points), distSqdMatrix)
-    print(totalDist, route)
-    (totalDist, route) = twoOptImprove(route , distSqdMatrix)
-    print(totalDist, route)
+
+    if (len(points) <= 400 ):
+        (totalDist, route) = twoOptImprove(route , distSqdMatrix)
+
     # Save route
     outFile = open(outfilename, "w")
     outFile.write(str(totalDist) + "\n")
