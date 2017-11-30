@@ -44,9 +44,9 @@ def kdTreeNN(filename, outfilename):
 
     (totalDist, route) = kDTreeSearchNN(root, city, len(points), distSqdMatrix)
 
-    if (len(points) <= 400 ):
-        (totalDist, route) = twoOptImprove(route , distSqdMatrix)
-
+    # if (len(points) <= 400 ):
+    #     (totalDist, route) = twoOptImprove(route , distSqdMatrix)
+    (totalDist, route) = twoOptImprove(route , distSqdMatrix)
     # Save route
     outFile = open(outfilename, "w")
     outFile.write(str(totalDist) + "\n")
@@ -140,8 +140,8 @@ def kDTreeSearchNN( tree, point, numCities, distSqdMatrix ):
         heapq.heappush( heap, (0 , tree ) )
         while len(heap) != 0:
             (d, node) = heapq.heappop( heap )
-            if (d >= bestDistSqd):
-                continue       # No node is closer, end while loop
+            # if (d > bestDistSqd):
+            #     continue       # No node is closer, continue while loop
             if node == None:
                 continue    # Skip node
 
