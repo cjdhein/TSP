@@ -46,6 +46,7 @@ def kdTreeNN(filename, outfilename):
 
     if (len(points) <= 400 ):
         (totalDist, route) = twoOptImprove(route , distSqdMatrix)
+
     # Save route
     outFile = open(outfilename, "w")
     outFile.write(str(totalDist) + "\n")
@@ -83,7 +84,8 @@ class kDNode:
 
     def __str__(self, level=1):
         ret = ""
-        ret += "\t"*(level-1)+"-----"+repr(self.city[0])+"\n"
+        if (self.visited == False):
+			ret += "\t"*(level-1)+"-----"+repr(self.city[0])+"\n"
         if self.left != None:
             ret += self.left.__str__(level+1)
         if self.right != None:
@@ -125,7 +127,6 @@ def kDTreeSearchNN( tree, numCities, maxNN ):
 
     # Find nearest city for entire loop
     while len(route) < numCities:
-        #print(str(len(route)) + " " + str(numCities))
         heap = []
         bestDistSqd = float('inf')
         bestNode = None
@@ -136,7 +137,7 @@ def kDTreeSearchNN( tree, numCities, maxNN ):
         bestSumDists = float('inf')
         while len(heap) != 0:
             (d, node) = heapq.heappop( heap )
-            if (d >= bestDistSqd):
+            if (d > bestDistSqd):
                 continue       # No node is closer, continue while loop
             if node == None:
                 continue    # Skip node
@@ -154,7 +155,6 @@ def kDTreeSearchNN( tree, numCities, maxNN ):
                 if (dist < bestDistSqd ):
                     bestDistSqd = dist
                     bestNode = node
-
             # Add child nodes to priority queue, adjusting priority left/right
             if (target.city[node.dim] <= node.city[node.dim]):
                 heapq.heappush(heap, (0, node.left ))
