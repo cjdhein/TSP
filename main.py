@@ -8,7 +8,7 @@
 # Reads input data set and selects algorithm based on size.
 #
 # Usage:
-# tsp.py [options] <filename>
+# python2.7 main.py [options] <filename>
 # INPUTS:
 # filename:
 #   each line is a city with city Id, x-coord, y-coord
@@ -20,12 +20,12 @@ import sys
 import os.path
 sys.path.append('./util')
 sys.path.append('./MST')
-sys.path.append('./NN')
-sys.path.append('./NN-KDTree')
+sys.path.append('./NN_KDTree')
 
 import timeit
 from tsp_utils import Map, City
 from MST import MST
+from KDTree_main import kdTreeNN
 import math
 import random as rand
 
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     except:
         print("No file named: " + filename)
         sys.exit()
-    
+
     unlimitedRun = False
     randomRun = True
 
@@ -95,20 +95,25 @@ if __name__ == '__main__':
     # Split text input into lines and read length to determine algorithm to run
     dataIn = inFile.read().splitlines()
     inputSize = len(dataIn)
+    outfilename = filename + ".tour"
 
     print 'File loaded with ' + str(inputSize)
 
-    t2 = timeit.default_timer() 
+    t2 = timeit.default_timer()
 
     if inputSize > 500:
-        ###TODO: Implement the running of KDTree for the larger data sets. Since I already read in the data as lines, we might want to edit the data input handled in your kdTreeNN function.
-
         print 'Run with KDTree'
+        kdTreeNN( dataIn, outfilename)
+
+        t3 = timeit.default_timer()
+
+        # t3 - t2 is time taken to build the MST and route
+        print 'Finished kd-tree and route build, time: ' + str(t3-t2)
+
         exit(0)
     else: # Running with MST
         # Create data structure
         map = Map(dataIn)
-
 
         # Checks for valid integer argument to specify desired start node for input file sizes
         # below 500. If none is given startCity is set to a random value.
@@ -132,17 +137,14 @@ if __name__ == '__main__':
             mst.twoOptFI()
         else:
             mst.twoOptBI()
-        length = mst.calcLength() 
+        length = mst.calcLength()
         print 'Route length: ' + str(length)
         t3 = timeit.default_timer()
 
         # t3 - t2 is time taken to build the MST and route
         print 'Finished MST and route build, time: ' + str(t3-t2)
 
-    fileWrite = open(filename + ".tour", "w")
-    mst.saveSolution(fileWrite)
-    fileWrite.close()
-
-#    fileWrite = open(filename + ".tourTime", "w")
-#    fileWrite.write(str(t4-t2) + "\n")
-#    fileWrite.close()
+        fileWrite = open(outfilename, "w")
+        mst.saveSolution(fileWrite)
+        fileWrite.close()
+        exit(0)
