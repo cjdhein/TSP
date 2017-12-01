@@ -18,8 +18,8 @@ import numpy as np
 
 # KDTreeNN
 #
-# Build KDTree from city data points gathered from filename
-# save Distance, then each city ID in the route in order.
+# Build KDTree from city data points
+# Use Tree to find solution
 def kdTreeNN(filename, outfilename):
     # Read file with city Id, city x, and city y
     try:
@@ -43,8 +43,8 @@ def kdTreeNN(filename, outfilename):
     (totalDist, route) = kDTreeSearchNN(root, len(points), distSqdMatrix)
 
     # Optimization
-    # if (len(points) <= 400 ):
     (totalDist, route) = twoOptImprove(route , distSqdMatrix)
+
     # Save route
     outFile = open(outfilename, "w")
     outFile.write(str(totalDist) + "\n")
@@ -134,8 +134,8 @@ def kDTreeSearchNN( tree, numCities, distSqdMatrix ):
         heapq.heappush( heap, (0 , tree ) )
         while len(heap) != 0:
             (d, node) = heapq.heappop( heap )
-            # if (d > bestDistSqd):
-            #     continue
+            if (d > bestDistSqd):
+                continue
             if node == None:
                 continue    # Skip node
 
@@ -219,6 +219,7 @@ def calcLength(tour, dists):
         c1 = tour[i]
         c2 = tour[j]
         length += int(round(math.sqrt(dists[c1][c2])))
+    # Add last leg of route
     length += int(round(math.sqrt(dists[ tour[0] ][ tour[len(tour)-1] ] )))
     return length
 

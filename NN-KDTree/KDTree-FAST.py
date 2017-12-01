@@ -1,6 +1,6 @@
 # Val Chapple
 # Cody Dhein
-# Date: Nov 29, 2017
+# Modified Date: Nov 30, 2017
 #
 # Resources:
 # Overall Concepts: An introductory tutorial on kd trees by Andrew W  Moore
@@ -8,10 +8,9 @@
 # Construction: https://www.cise.ufl.edu/class/cot5520fa09/CG_RangeKDtrees.pdf
 # Querying: https://web.engr.oregonstate.edu/~tgd/classes/534/slides/part3.pdf
 #
+
 import sys
 from operator import itemgetter
-
-#import random
 import heapq
 import math
 import timeit
@@ -42,10 +41,8 @@ def kdTreeNN(filename, outfilename):
     if (numNN < 10):
         numNN = 10
 
+    # Create route with kdTree
     (totalDist, route, distSqdMatrix) = kDTreeSearchNN(root, len(points), numNN)
-
-    # if (len(points) <= 400 ):
-    #     (totalDist, route) = twoOptImprove(route , distSqdMatrix)
 
     # Save route
     outFile = open(outfilename, "w")
@@ -55,10 +52,12 @@ def kdTreeNN(filename, outfilename):
     return
 
 # kDNode
-# Nodes of trees
-# value is the city
-# left and right point to other nodes
-# dim represents the splitting axis (aka index to use on the city data)
+# Class representation of the nodes of trees
+# Accepts initialization values of:
+#   city: contains id, x, and y. The x and y are the 2 dimensions
+#   left and right: point to other kd-nodes
+#   dim: represents the splitting axis (aka index to use on the city data)
+class kDNode:
 class kDNode:
     def __init__(self, city, left, right, dim):
         self.city = city
@@ -113,8 +112,8 @@ def kDTree( points, depth, k ):
     )
 
 # kDTreeSearchNN
-# Determines a tour distance and route
-# Uses greedy method of finding nearest unvisited city to target city
+# Accepts kd-tree root, number of cities in tree, and 2d distance squared matrix
+# Determines a tour distance and route, using nearest unvisited neighbor greedy
 def kDTreeSearchNN( tree, numCities, maxNN ):
     start = tree
     target = tree
@@ -175,13 +174,18 @@ def kDTreeSearchNN( tree, numCities, maxNN ):
     totalDist += int(round(math.sqrt(dist_sqd(target.city, start.city))))
     return (totalDist, route, distSqdMatrix)
 
+
+# dist_sqd
+# accepts a city list (id, x, y)
+# Returns the distance squared between the two cities.
 def dist_sqd( city1, city2 ):
     x_dist = abs(city2[1] - city1[1])
     y_dist = abs(city2[2] - city1[2])
     return x_dist*x_dist + y_dist*y_dist
 
-# swaps edges
-# accepts the full route and the indices for two nodes to swap
+# twoOptSwap
+# accepts the full route (list of city id's) and indices for two nodes to swap
+# swaps the two nodes and flips the route to keep a circuit
 def twoOptSwap(route,i,j):
 	new_route = route[:i]
 	tmp = list(reversed(route[i:j+1]))
@@ -189,6 +193,9 @@ def twoOptSwap(route,i,j):
 	new_route.extend(route[j+1:])
 	return new_route
 
+
+# twoOptImprove
+# accepts the tour list of city Id's and a 2d distance squared Matrix
 # Performs a twoOpt improvement on the candidate solution
 def twoOptImprove(route,distances):
     noSwap = route[0]
@@ -214,8 +221,10 @@ def twoOptImprove(route,distances):
     currentBest = calcLength(route,distances)
     return (currentBest,  route )
 
+
+# calcLength(tour, distMatrix)
+# accepts the tour list of city Id's and a 2d distance squared Matrix
 # calculates total length of the given tour
-# accepts the tour and a distance Matrix
 def calcLength(tour, dists):
     length = 0
 
@@ -227,7 +236,7 @@ def calcLength(tour, dists):
     length += int(round(math.sqrt(dists[ tour[0] ][ tour[len(tour)-1] ] )))
     return length
 
-
+# Main Program
 if __name__ == '__main__':
     t1= timeit.default_timer()
     # Check input file name exists
