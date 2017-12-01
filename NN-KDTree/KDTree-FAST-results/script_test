@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Runs all .txt files from given directory name with python2.7 filename given
+
+
+# Usage:
+#   test_script <progname> <filedirname>
+usage="./test_script <dirname> <filedirname>"
+
+# Determine if too many parameters
+numargs=$#
+if [ $numargs -ge 3 ]
+then
+	echo -e "$usage" >&2
+	exit 1
+fi
+
+#Get directory name and program name
+progname=$1
+dirname=$2
+
+slash="/"
+astrisk="*"
+if [[ "${dirname: -1}" == "/" ]]
+then
+	dirname=${dirname}"*"
+else
+	dirname=${dirname}"/*"
+fi
+
+list=()
+for txtFile in $dirname
+do
+	if [[ "${txtFile: -4}" == ".txt" ]]
+	then
+		list+="${txtFile},"
+	fi
+done
+
+IFS=","
+# echo $list
+for x in ${list}
+do
+	echo "Running ${x}"
+	python2.7 $progname "${x}" &
+	sleep 5
+done

@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Runs all .txt files from given directory name with python2.7 filename given
+
+
+# Usage:
+#   script_verify progname> <filedirname>
+usage="./script_verify"
+
+# Determine if too many parameters
+numargs=$#
+if [ $numargs -ge 1 ]
+then
+	echo -e "$usage" >&2
+	exit 1
+fi
+
+#Get directory name and program name
+echo "Input1" 
+cat ./test-input-1.txt.tourTime 2>/dev/null
+python tsp-verifier.py ./test-input-1.txt ./test-input-1.txt.tour 2>/dev/null
+
+echo "Input2" 
+cat ./test-input-2.txt.tourTime 2>/dev/null
+python tsp-verifier.py ./test-input-2.txt ./test-input-2.txt.tour 2>/dev/null
+
+echo "Input3" 
+cat ./test-input-3.txt.tourTime 2>/dev/null
+python tsp-verifier.py ./test-input-3.txt ./test-input-3.txt.tour 2>/dev/null
+
+echo "Input4" 
+cat ./test-input-4.txt.tourTime 2>/dev/null
+python tsp-verifier.py ./test-input-4.txt ./test-input-4.txt.tour 2>/dev/null
+
+echo "Input5" 
+cat ./test-input-5.txt.tourTime 2>/dev/null
+python tsp-verifier.py ./test-input-5.txt ./test-input-5.txt.tour 2>/dev/null
+
+echo "Input6" 
+cat ./test-input-6.txt.tourTime 2>/dev/null
+python tsp-verifier.py ./test-input-6.txt ./test-input-6.txt.tour 2>/dev/null
+
+echo "Input7" 
+cat ./test-input-7.txt.tourTime 2>/dev/null
+python tsp-verifier.py ./test-input-7.txt ./test-input-7.txt.tour 2>/dev/null
+
+echo "Example1"
+cat ./tsp_example_1.txt.tourTime 2>/dev/null
+python tsp-verifier.py ./tsp_example_1.txt ./tsp_example_1.txt.tour 2>/dev/null
+
+echo "Example2"
+cat ./tsp_example_2.txt.tourTime 2>/dev/null
+python tsp-verifier.py ./tsp_example_2.txt ./tsp_example_2.txt.tour 2>/dev/null
+
+echo "Example3"
+cat ./tsp_example_3.txt.tourTime 2>/dev/null
+python tsp-verifier.py ./tsp_example_3.txt ./tsp_example_3.txt.tour 2>/dev/null
+
+

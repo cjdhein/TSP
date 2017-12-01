@@ -1,6 +1,6 @@
 # Val Chapple
 # Cody Dhein
-# Date: Nov 29, 2017
+# Date: Nov 22, 2017
 #
 # Resources:
 # Overall Concepts: An introductory tutorial on kd trees by Andrew W  Moore
