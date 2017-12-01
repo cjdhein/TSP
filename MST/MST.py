@@ -8,7 +8,6 @@ import numpy as np
 import math
 import timeit
 import fibonacci_heap_mod as fib
-import random as rand
 # MST Class
 #
 # Based on Prim's Algorithm
@@ -34,37 +33,28 @@ class MST:
     # Builds a Minimum Spanning Tree and constructs a route using Prim's algorithm
     # Returns: Sets self.tree equal to set of tuples that hold (fromCity, toCity) 
     #   representing the from and to connecting nodes in the tree
-    def buildRoute(self):
-        trees = [[]]    
-        n = len(self.cityMap.cities)      
-        
-        m = n*(n-1) / 2
 
-        k = math.pow(2,(2*m)/n)
+    def buildRoute(self, startNode):
+
+        numCities = len(self.cityMap.cities)      
+
+        start = self.cityMap.cities[startNode]
 
 
-        # holds nodes in the order they are added
         preWalk = []
         
         #get smallest distance and chose the from city as start
         tmp = np.array(self.cityMap.distMatrix)
-        start = np.amin(tmp)
 
-        a = rand.randint(0,n-1)
-        b = a
-        while b == a:
-            b = rand.randint(0,n-1)
-
-        #start = self.cityMap.distMatrix[a][b]
         
         #select from city for this distance and set it visited
         # then append it to the preWalk
-        self.cityMap.cities[start[1]].visited = True
-        preWalk.append(start[1])
+        self.cityMap.cities[start.id].visited = True
+        preWalk.append(start.id)
         
         #initialize options to all distances connecting to our start
         # vertex so we pick the smallest distance from that vertex
-        options = self.cityMap.distMatrix[start[1]].tolist()
+        options = self.cityMap.distMatrix[start.id].tolist()
 
         fibheap = fib.Fibonacci_heap()
         for el in options:
@@ -75,10 +65,7 @@ class MST:
                 fibheap.enqueue(val,el[0])
 
         # while we have not added all vertices to the tree
-        while len(preWalk) < n:
-
-            if len(fibheap) > k:
-                print 'it will matter!'
+        while len(preWalk) < numCities:
 
             tmp_selected = fibheap.dequeue_min()
             selected = (tmp_selected.get_priority(),tmp_selected.get_value()[0],tmp_selected.get_value()[1])
