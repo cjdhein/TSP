@@ -2,7 +2,7 @@
 
 # Val Chapple
 # Cody Dhein
-# Date: Nov 30, 2017
+# Date: Nov 22, 2017
 
 # TSP Driver program
 # Reads input data set and selects algorithm based on size.
@@ -11,7 +11,7 @@
 # python2.7 main.py <filename>
 # INPUTS:
 # filename:
-#   contains filename of a text file that has each line as a city with city Id, x-coord, y-coord
+#   each line is a city with city Id, x-coord, y-coord
 
 import sys
 import os.path
