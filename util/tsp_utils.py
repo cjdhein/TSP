@@ -10,6 +10,7 @@ import random
 # Represents a given city on the map.
 # Has data members 'id' 'x' and 'y'
 # Main usage will be to call distanceTo
+# Used for Map in MST method!!
 class City:
 	def __init__(self,id,x,y):
 		self.id = int(id)
@@ -41,6 +42,7 @@ class City:
 # Holds the entire map/list of cities from the input file
 # Constructor accepts the loaded input file and
 # then builds a list of City objects and a distance matrix
+# Used for MST method!!
 class Map:
 	def __init__(self, inputFile):
 		self.cities = []
@@ -48,9 +50,8 @@ class Map:
 		self.distMatrix = np.array([[x for x in self.cities] for y in self.cities])
 		self.buildMatrix()
 
-	# load's cities from input file
-	def loadCities(self,text):
-		_data = text.read().splitlines()
+	# load's cities from input file, provided with read().splitlines()
+	def loadCities(self,_data):
 
 		for _line in _data:
 			newCity = _line.split()

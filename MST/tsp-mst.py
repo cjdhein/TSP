@@ -20,24 +20,7 @@ import timeit
 from tsp_utils import Map, City
 from MST import MST
 import math
-import multiprocessing as mp
-
-# run as a sub process; terminate externally after set time elapsed
-# runs FI and BI alternately
-def bestOfMany(mst):
-    best = float('inf')
-    iteration = 1
-    while True:
-        print 'Iteration: ' + str(iteration)
-        mst.buildRoute()
-        mst.twoOptBI()
-        tmp = mst.calcLength()
-        iteration += 1
-        if tmp < best:
-            best = tmp
-            print 'New best: ' + str(best)
-
-
+import random as rand
 
 if __name__ == '__main__':
     # Check input file name exists and is readable file
@@ -53,19 +36,35 @@ if __name__ == '__main__':
         print("No file named: " + filename)
         sys.exit()
 
-    t1 = timeit.default_timer()
-
+    
     # Create data structure
-    cities = Map(inFile)
+    map = Map(inFile)
+
+
+    print 'File loaded with ' + str(len(map.cities))
+    # t2 - t1 is time taken to calculate distances
+
+    startCity = raw_input('Specify starting city in the range 0 - ' + str(len(map.cities)-1) + ', or leave blank for random start: ')
+    runRandom = True
+    try:
+        startCity = int(startCity)
+        if startCity >= 0 and startCity <= len(map.cities)-1:
+            runRandom = False
+        else:
+            print 'Invalid input; running with random start.'
+    except:
+            print 'Invalid input; running with random start.'
+
+    # Build MST and route
+    mst = MST(map)
 
     t2 = timeit.default_timer() 
 
-    # t2 - t1 is time taken to calculate distances
-    print 'Finished distance calc, time: ' + str(t2-t1)
+    if runRandom == True:
+        startCity = rand.randint(0,len(map.cities)-1)
 
-    # Build MST and route
-    mst = MST(cities)
-    mst.buildRoute()
+    print 'Running with start city as ' + str(startCity)
+    mst.buildRoute(startCity)
 
     t3 = timeit.default_timer()
 
@@ -73,37 +72,20 @@ if __name__ == '__main__':
     print 'Finished MST and route build, time: ' + str(t3-t2)
    
 
-  ## Below is implemented to allow multiple iterations of improvement and selection of the best
-  ### within the 3 minute time limit.
-
-  #  # time limit of 2min 55sec
-  #  limit = 175.00
-  #  
-  #  start = timeit.default_timer()
-  #  subProc = mp.Process(target=bestOfMany,name="bestOfMany",args=(mst,))
-  #  subProc.start()
-  #  tmp = timeit.default_timer()
-
-  #  while (tmp - start) < limit:
-  #      tmp = timeit.default_timer()
-
-  #  subProc.terminate()
-  
-    # Optimize route
-    #mst.twoOptBI()
-    mst.twoOptFI()
+   # Optimize route
+    mst.twoOptBI()
+    #mst.twoOptFI()
     
     t4 = timeit.default_timer()
     
     print 'Finished optimization, time: ' + str(t4 - t3)
     print ''
     print 'Route length: ' + str(mst.calcLength())
-    print 'Total time: ' + str(t4-t1)
 
     fileWrite = open(filename + ".tour", "w")
     mst.saveSolution(fileWrite)
     fileWrite.close()
 
     fileWrite = open(filename + ".tourTime", "w")
-    fileWrite.write(str(t4-t1) + "\n")
+    fileWrite.write(str(t4-t2) + "\n")
     fileWrite.close()
