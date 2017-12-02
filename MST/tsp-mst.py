@@ -73,8 +73,8 @@ if __name__ == '__main__':
    
 
    # Optimize route
-    #mst.twoOptBI()
-    mst.twoOptFI()
+    mst.twoOptBI()
+    #mst.twoOptFI()
     
     t4 = timeit.default_timer()
     
